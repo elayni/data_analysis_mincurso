@@ -1,0 +1,155 @@
+---
+title: "Trabalho 1"
+author: "Elayni Enoly Sousa Franco"
+output:
+  html_document:
+    df_print: paged
+---
+
+
+
+```{r}
+# Lendo os dados do arquivo csv
+
+library(dplyr)
+library(ggplot2)
+library(descr)
+
+db <- read.csv("app_control_financ.csv")
+
+```
+
+
+
+### 1. Qual a média, média aparada excluindo 10% dos valores extremos e a mediana das horas logadas no aplicativo?
+```{r}
+# Para a média:
+mean(x = db$horas_logado)
+
+# média aparada exluíndo 10% do conjunto de dados
+mean(db$horas_logado, trim = 0.1)
+
+# mediana
+median(x = db$horas_logado)
+```
+
+##### a. Por que a mediana é menor do que a média?
+
+> Para se calcular a média, soma-se todos os elementos e depois divide esse número obtido pelo número de elementos. Já na mediana, os elemnetos são ordenados o elemento que fica no meio dos dados (se houver um número de dados ímpar) ou a soma dois dois elementos, dividido por dois (caso o número de elementos seja par) é o valor da mediana. 
+
+
+
+##### b. Por que a mediana é mais próxima da média aparada?
+
+> A média aparada elimina do cálculo da média os números maiores e os números menos de acordo com alguma regra definida, no nosso caso a regra foi de 10% dos valores menores e maiores. Isso faz com que o valor da média aparada seja diferente em até três dígitos da média com todos os dados, e que seu valor seja mais próximo do valor da mediana desse conjunto de dados.
+
+
+### 2. Qual o desvio padrão das horas logadas no aplicativo?
+
+```{r}
+sd(db$horas_logado)
+
+```
+
+##### a. O que o valor representa?
+
+> O desvio padrão é uma medida de dispersão, é uma medida que indica o quanto o conjunto de dados é uniforme. Quanto mais baixo o desvio for, mais o conjunto de dados está próximo da média. 
+
+
+### 3. Calcule o 1º, 2º e 3º quartis das horas logadas.
+```{r}
+# primeiro, segundo e terceiro quartis
+quantile(db$horas_logado, c(0.25, 0.50, 0.75))
+```
+
+##### a. O que o resultado quer dizer?
+
+> Quartis são três medidas que deixam um conjunto de dados ordenados divididos em quatro partes iguais. O primeiro quartil é o número que deixa 25% dos dados abaixo e 75% acima, o segundo quartil é a mediana, deixa 50% das observações abaixo e 50% das observações acima, já o terceiro quartil deixa 75% das observações abaixo e 25% acima. 
+
+
+### 4. Visualize os quartis das horas logadas através de um gráfico boxsplot.
+```{r}
+ ggplot(db, aes(y=horas_logado)) + 
+   geom_boxplot(fill = "#E6E6FA", colour = "purple") + scale_x_discrete("Boxplot") +
+   labs(y = "Horas logadas no aplicativo")
+
+```
+
+##### a. Há algum outlier?
+
+> Sim, há.
+
+##### b. O que o outlier significa nesse contexto?
+
+> Um outlier é um dado que difere significamente dos outros dados, nesse contexto, o outlier possui um valor significamente acima dos outros dados.
+
+
+### 5. Organize as horas logadas em quatro intervalos e construa uma tabela de frequência.
+```{r}
+# definindo os intervalos das classes
+brk <- seq(0, 41, length=5)
+
+table(cut(db$horas_logado, breaks = brk,right = TRUE, include.lowest = TRUE))
+```
+##### a. Construa um histograma utilizando os intervalos.
+```{r}
+
+hist(db$horas_logado, breaks = brk,right = TRUE, include.lowest = TRUE, main = "Histograma das Horas Logadas", xlab = " ", ylab = "Frequência", border = "purple", col = "#E6E6FA")
+```
+
+##### b. Interprete o histograma
+
+> O histograma mostra uma concentração maior no primeiro intervalo (0 - 10). Isso demonstra que os usuários passaram entre 0 e 10 horas totais no aplicativo em sua maioria (mais de 2500 entradas). Seguido por usuários que passaram entre 10 e 20 horas logadas (com menos de 1000 entradas).Os intervalos entre 20 - 30 e entre 30 - 40 não obtiveram entradas ou foram em pouca quantidade comparado aos montantes dos dois primeiros intervalos.  
+
+
+### 6. Qual a relação entre as horas logadas no seu aplicativo e as horas logadas no aplicativo do Banco do Brasil? Use o gráfico de dispersão.
+
+```{r}
+plot(db$horas_logado, db$horas_logado_BB, xlab = "Horas no Aplicativo", ylab = "Horas no Aplicativo BB", col="purple")
+
+```
+##### a. O que o gráfico quer dizer?
+
+> O gráfico indica a intensidade da relação entre as horas logadas no meu aplicativo e as horas logadas no aplicativo BB. A correlação entre as duas variáveis é negativa.
+
+
+### 7. Visualize a relação entre as variáveis acima através da compartimentação hexagonal.
+```{r}
+ggplot(db, (aes(x=horas_logado, y=horas_logado_BB))) + stat_binhex(colour="white") + theme_bw() + scale_fill_gradient(low="white", high="purple") + labs(x="Horas Logadas no App", y="Horas Logadas no App BB")
+```
+
+##### a. O que o gráfico quer dizer?
+
+> O gráfico mostra o relacionamento entre as horas logadas no meu aplicativo versus as horas logadas no aplicativo do BB. Os registros ficam agrupados em compartimenos hexagonais e os hexágonos são registrados com uma cor indicando o número de resgistros naquele compartimento. Nesse gráfico, o relacionamento negativo entre ambos é claro. 
+
+
+### 8. Indique a proporção do uso de cartão de crédito por canal (android e ios) através de uma tabela de contingência
+
+```{r}
+CrossTable(db$canal, db$cartao_cred, prop.c=FALSE, prop.chisq=FALSE, prop.t=FALSE)
+
+```
+
+### 9. Construa gráficos boxplots para comparar as horas logadas por canal.
+```{r}
+
+ ggplot(db, aes(x=canal, y=horas_logado)) + 
+   geom_boxplot(fill = "#E6E6FA", colour = "purple") + scale_x_discrete("Canal") +
+   labs(y = "Horas Logadas no App")
+
+```
+
+##### a. O que o resultado quer dizer?
+> O resultado.
+
+### 10. Utilize o gráfico violino para fazer a mesma comparação.
+```{r}
+ggplot(data=db, aes(canal, horas_logado)) +
+ylim(0, 50) +
+geom_violin(fill = "#E6E6FA", colour = "purple") +
+labs(x="Canal", y="Horas Logadas no App")
+```
+
+##### a. Que informação foi agregada com essa visualização comparada com a anterior?
+
+> Por melhorar a estimativa de densidade no eixo y, o gráfico violino consegue exibir melhor a concentração de dados na relação entre os eixos. Mas perdemos informações como mediana, média e quartis. 
